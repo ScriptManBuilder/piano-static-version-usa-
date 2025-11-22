@@ -88,14 +88,11 @@ const Account: React.FC = () => {
   const testAccountCourses = products.map(product => {
     const courseVideos = [];
     
-    // Добавляем основное видео превью
-    if (product.video) {
-      courseVideos.push(product.video);
-    }
-    
-    // Добавляем дополнительные видео для премиум курсов
-    if (product.videos) {
+    // Используем videos если есть, иначе video
+    if (product.videos && product.videos.length > 0) {
       courseVideos.push(...product.videos);
+    } else if (product.video) {
+      courseVideos.push(product.video);
     }
     
     return {
@@ -103,7 +100,8 @@ const Account: React.FC = () => {
       title: product.name,
       description: product.description,
       price: `$${product.price}`,
-      videos: courseVideos
+      videos: courseVideos,
+      specifications: product.specifications
     };
   });
 
@@ -396,22 +394,26 @@ const Account: React.FC = () => {
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                           <span style={{ color: '#718096', fontSize: '0.95rem' }}>Duration</span>
                           <span style={{ fontWeight: '600', color: '#2d3748' }}>
-                            {course.id <= 4 ? '18-42 min' : course.id <= 7 ? '38-54 min' : '28-60 min'}
+                            {course.specifications?.Duration || 'N/A'}
                           </span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                           <span style={{ color: '#718096', fontSize: '0.95rem' }}>Level</span>
                           <span style={{ fontWeight: '600', color: '#2d3748' }}>
-                            {course.id <= 4 ? 'Beginner' : course.id <= 8 ? 'Intermediate' : 'Advanced'}
+                            {course.specifications?.Level || 'Beginner'}
                           </span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                           <span style={{ color: '#718096', fontSize: '0.95rem' }}>Language</span>
-                          <span style={{ fontWeight: '600', color: '#2d3748' }}>English</span>
+                          <span style={{ fontWeight: '600', color: '#2d3748' }}>
+                            {course.specifications?.Language || 'English'}
+                          </span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                           <span style={{ color: '#718096', fontSize: '0.95rem' }}>Access</span>
-                          <span style={{ fontWeight: '600', color: '#2d3748' }}>Lifetime</span>
+                          <span style={{ fontWeight: '600', color: '#2d3748' }}>
+                            {course.specifications?.Access || 'Lifetime'}
+                          </span>
                         </div>
                       </div>
 

@@ -41,6 +41,7 @@ const ProductDetail: React.FC = () => {
   const { formatPrice } = usePrice();
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [isVideoMode, setIsVideoMode] = useState<boolean>(false);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState<number>(0);
 
   const product = products.find((p: Product) => p.id === parseInt(id || '0'));
 
@@ -50,7 +51,7 @@ const ProductDetail: React.FC = () => {
     } else {
       setSelectedImage(product.image);
       // Автоматически показывать видео, если оно есть
-      setIsVideoMode(!!product.video);
+      setIsVideoMode(!!(product.video || product.videos));
     }
   }, [product, navigate]);
 
@@ -128,14 +129,18 @@ const ProductDetail: React.FC = () => {
         
         <ProductContainer>
           <ImageSection>
-            {isVideoMode && product.video ? (
+            {isVideoMode && (product.video || product.videos) ? (
               <VideoPlayer
                 controls
                 controlsList="nodownload noremoteplayback"
                 autoPlay
                 muted={false}
+                key={currentVideoIndex}
               >
-                <source src={product.video} type="video/mp4" />
+                <source 
+                  src={product.videos ? product.videos[currentVideoIndex] : product.video} 
+                  type="video/mp4" 
+                />
                 Your browser does not support the video tag.
               </VideoPlayer>
             ) : (
@@ -143,8 +148,28 @@ const ProductDetail: React.FC = () => {
             )}
             
             <ImageGallery>
-              {/* Добавляем кнопку для видео, если оно есть */}
-              {product.video && (
+              {/* Добавляем кнопки для множественных видео */}
+              {product.videos && product.videos.map((video, index) => (
+                <VideoThumbnailContainer
+                  key={`video-${index}`}
+                  isSelected={isVideoMode && currentVideoIndex === index}
+                  onClick={() => {
+                    setIsVideoMode(true);
+                    setCurrentVideoIndex(index);
+                  }}
+                >
+                  <VideoThumbnailImage
+                    src={product.image}
+                    alt={`Video ${index + 1}`}
+                  />
+                  <VideoPlayIcon>
+                    ▶ {index + 1}
+                  </VideoPlayIcon>
+                </VideoThumbnailContainer>
+              ))}
+              
+              {/* Добавляем кнопку для одиночного видео, если оно есть и нет videos */}
+              {product.video && !product.videos && (
                 <VideoThumbnailContainer
                   isSelected={isVideoMode}
                   onClick={() => setIsVideoMode(true)}
